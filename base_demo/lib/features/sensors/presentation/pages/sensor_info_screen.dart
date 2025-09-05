@@ -178,6 +178,7 @@ class _SensorInfoScreenState extends State<SensorInfoScreen>
             // Flashlight Icon with Animation
             GestureDetector(
               onTap: isLoading ? null : () {
+                if (!mounted) return;
                 context.read<SensorBloc>().add(const ToggleFlashlightEvent());
               },
               child: AnimatedBuilder(
@@ -275,6 +276,7 @@ class _SensorInfoScreenState extends State<SensorInfoScreen>
                 Switch(
                   value: isStreaming,
                   onChanged: (value) {
+                    if (!mounted) return;
                     if (value) {
                       context.read<SensorBloc>().add(const StartGyroscopeEvent());
                     } else {

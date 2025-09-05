@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/saved_books/saved_books_bloc.dart';
 import '../bloc/saved_books/saved_books_event.dart';
 import '../bloc/saved_books/saved_books_state.dart';
+import '../bloc/book_details/book_details_bloc.dart';
 import '../../domain/entities/book.dart';
 import '../widgets/saved_book_card.dart';
 import 'book_details_screen.dart';
-import '../../../../home_screen.dart';
+import '../../../../injection_container.dart' as di;
 
 class SavedBooksScreen extends StatefulWidget {
   const SavedBooksScreen({super.key});
@@ -21,7 +22,9 @@ class _SavedBooksScreenState extends State<SavedBooksScreen> {
     super.initState();
     // Load saved books when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SavedBooksBloc>().add(const LoadSavedBooksEvent());
+      if (mounted) {
+        context.read<SavedBooksBloc>().add(const LoadSavedBooksEvent());
+      }
     });
   }
 
@@ -33,25 +36,13 @@ class _SavedBooksScreenState extends State<SavedBooksScreen> {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         actions: [
-          // Add explore/search button
-          IconButton(
-            icon: const Icon(Icons.explore),
-            tooltip: 'Explore Books',
-            onPressed: () {
-              // Navigate to home screen with search tab selected
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => const HomeScreen(initialTabIndex: 0),
-                ),
-              );
-            },
-          ),
           BlocBuilder<SavedBooksBloc, SavedBooksState>(
             builder: (context, state) {
               if (state is SavedBooksLoaded && state.books.isNotEmpty) {
                 return IconButton(
                   icon: const Icon(Icons.refresh),
                   onPressed: () {
+                    if (!mounted) return;
                     context.read<SavedBooksBloc>().add(const LoadSavedBooksEvent());
                   },
                 );
@@ -97,9 +88,12 @@ class _SavedBooksScreenState extends State<SavedBooksScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => context
-                  .read<SavedBooksBloc>()
-                  .add(const LoadSavedBooksEvent()),
+              onPressed: () {
+                if (!mounted) return;
+                context
+                    .read<SavedBooksBloc>()
+                    .add(const LoadSavedBooksEvent());
+              },
               child: const Text('Retry'),
             ),
           ],
@@ -151,12 +145,17 @@ class _SavedBooksScreenState extends State<SavedBooksScreen> {
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () {
-                // Navigate to home screen with search tab selected
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => const HomeScreen(initialTabIndex: 0),
-                  ),
-                );
+                if (!mounted) return;
+                // Find the Scaffold with BottomNavigationBar and trigger tab 0
+                final scaffoldState = Scaffold.maybeOf(context);
+                if (scaffoldState != null) {
+                  // This is a hacky but working solution
+                  // We'll find the home screen state and call the tab switch
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/home', 
+                    (route) => false,
+                  );
+                }
               },
               icon: const Icon(Icons.search),
               label: const Text('Start Exploring'),
@@ -251,15 +250,27 @@ class _SavedBooksScreenState extends State<SavedBooksScreen> {
   }
 
   void _navigateToBookDetails(Book book) {
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BookDetailsScreen(book: book),
+        builder: (context) => MultiBlocProvider(
+          providers: [
+            BlocProvider<BookDetailsBloc>(
+              create: (context) => di.sl<BookDetailsBloc>(),
+            ),
+            BlocProvider.value(
+              value: di.sl<SavedBooksBloc>(),
+            ),
+          ],
+          child: BookDetailsScreen(book: book),
+        ),
       ),
     );
   }
 
   void _removeFromSaved(Book book) {
+    if (!mounted) return;
     context.read<SavedBooksBloc>().add(RemoveBookEvent(bookKey: book.key));
     
     // Show snackbar
@@ -269,7 +280,9 @@ class _SavedBooksScreenState extends State<SavedBooksScreen> {
         action: SnackBarAction(
           label: 'Undo',
           onPressed: () {
-            context.read<SavedBooksBloc>().add(SaveBookEvent(book: book));
+            if (mounted) {
+              context.read<SavedBooksBloc>().add(SaveBookEvent(book: book));
+            }
           },
         ),
       ),

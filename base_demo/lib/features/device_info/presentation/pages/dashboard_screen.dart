@@ -42,7 +42,9 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     // Load device info when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DeviceInfoBloc>().add(const LoadDeviceInfoEvent());
+      if (mounted) {
+        context.read<DeviceInfoBloc>().add(const LoadDeviceInfoEvent());
+      }
     });
   }
 
@@ -62,9 +64,12 @@ class _DashboardScreenState extends State<DashboardScreen>
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            onPressed: () => context
-                .read<DeviceInfoBloc>()
-                .add(const LoadDeviceInfoEvent()),
+            onPressed: () {
+              if (!mounted) return;
+              context
+                  .read<DeviceInfoBloc>()
+                  .add(const LoadDeviceInfoEvent());
+            },
             icon: const Icon(Icons.refresh),
           ),
         ],
@@ -165,9 +170,12 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () => context
-                .read<DeviceInfoBloc>()
-                .add(const LoadDeviceInfoEvent()),
+            onPressed: () {
+              if (!mounted) return;
+              context
+                  .read<DeviceInfoBloc>()
+                  .add(const LoadDeviceInfoEvent());
+            },
             child: const Text('Retry'),
           ),
         ],
@@ -387,7 +395,10 @@ class _DashboardScreenState extends State<DashboardScreen>
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
-          onTap: () => context.read<DeviceInfoBloc>().add(const RefreshBatteryEvent()),
+          onTap: () {
+            if (!mounted) return;
+            context.read<DeviceInfoBloc>().add(const RefreshBatteryEvent());
+          },
           borderRadius: BorderRadius.circular(16),
           child: Container(
             padding: const EdgeInsets.all(16),

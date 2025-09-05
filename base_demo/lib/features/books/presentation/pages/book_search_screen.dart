@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/book_search/book_search_bloc.dart';
 import '../bloc/book_search/book_search_event.dart';
 import '../bloc/book_search/book_search_state.dart';
+import '../bloc/book_details/book_details_bloc.dart';
 import '../bloc/saved_books/saved_books_bloc.dart';
 import '../bloc/saved_books/saved_books_event.dart';
 import '../../domain/entities/book.dart';
@@ -10,6 +11,7 @@ import '../widgets/search_bar_widget.dart' as custom;
 import '../widgets/book_card.dart';
 import '../widgets/book_shimmer.dart';
 import 'book_details_screen.dart';
+import '../../../../injection_container.dart' as di;
 
 class BookSearchScreen extends StatefulWidget {
   const BookSearchScreen({super.key});
@@ -29,6 +31,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     
     // Start with cleared state instead of loading default books
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final currentState = context.read<BookSearchBloc>().state;
       
       // If we're in initial state, emit cleared state for a clean start
@@ -52,6 +55,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   }
 
   void _onScroll() {
+    if (!mounted) return;
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent * 0.8) {
       context.read<BookSearchBloc>().add(const LoadMoreBooksEvent());
@@ -59,6 +63,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   }
 
   void _onSearch(String query) {
+    if (!mounted) return;
     if (query.trim().isNotEmpty && query != _currentQuery) {
       _currentQuery = query;
       context.read<BookSearchBloc>().add(SearchBooksEvent(query: query, isRefresh: true));
@@ -66,26 +71,40 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   }
 
   void _onRefresh() {
+    if (!mounted) return;
     if (_currentQuery.isNotEmpty) {
       context.read<BookSearchBloc>().add(SearchBooksEvent(query: _currentQuery, isRefresh: true));
     }
   }
 
   void _onClear() {
+    if (!mounted) return;
     _currentQuery = '';
     context.read<BookSearchBloc>().add(const ClearSearchEvent());
   }
 
   void _onBookTap(Book book) {
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BookDetailsScreen(book: book),
+        builder: (context) => MultiBlocProvider(
+          providers: [
+            BlocProvider<BookDetailsBloc>(
+              create: (context) => di.sl<BookDetailsBloc>(),
+            ),
+            BlocProvider.value(
+              value: di.sl<SavedBooksBloc>(),
+            ),
+          ],
+          child: BookDetailsScreen(book: book),
+        ),
       ),
     );
   }
 
-  void _onBookSave(Book book) async {
+  void _onBookSave(Book book) {
+    if (!mounted) return;
     if (book.isSaved) {
       // Remove from saved
       context.read<SavedBooksBloc>().add(RemoveBookEvent(bookKey: book.key));
@@ -143,22 +162,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
 
   Widget _buildSearchResults(BookSearchState state) {
     if (state is BookSearchLoading) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text(
-              'Loading popular books...',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      );
+      return const BookListShimmer();
     }
 
     if (state is BookSearchInitial) {
@@ -279,8 +283,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                 if (index >= books.length) {
                   return isLoadingMore
                       ? const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Center(child: CircularProgressIndicator()),
+                          padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                          child: BookShimmerCard(),
                         )
                       : const SizedBox.shrink();
                 }

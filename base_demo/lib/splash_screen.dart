@@ -21,8 +21,9 @@ class _SplashScreenState extends State<SplashScreen>
     _setupAnimations();
     _initializeApp();
     
+    // Automatic navigation after initialization
     Future.delayed(const Duration(seconds: 3), () {
-      if (mounted && !_isInitialized) {
+      if (mounted) {
         Navigator.of(context).pushReplacementNamed('/home');
       }
     });
@@ -49,43 +50,32 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _initializeApp() async {
     try {
-      await Future.microtask(() async {
-        await di.initFeaturesAsync();
-        
-        try {
-          await Future.microtask(() async {
-            await di.sl<DatabaseService>().preloadDatabase();
-          });
-        } catch (dbError) {
-          // Continue anyway
-        }
-      });
-      
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _isInitialized = true;
-          });
-        }
-      });
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-      
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
+      // Features are already initialized in main.dart
+      // Just preload database and show tick mark
+      try {
+        await di.sl<DatabaseService>().preloadDatabase();
+      } catch (dbError) {
+        // Continue even if database preload fails
+        print('Database preload failed: $dbError');
       }
-    } catch (e) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _isInitialized = true;
-          });
-        }
-      });
       
+      // Mark as initialized
       if (mounted) {
-        await Future.delayed(const Duration(milliseconds: 800));
-        Navigator.of(context).pushReplacementNamed('/home');
+        setState(() {
+          _isInitialized = true;
+        });
+      }
+      
+      // Wait a bit before navigating
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+    } catch (e) {
+      print('Initialization error: $e');
+      // Mark as initialized even if there's an error
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
       }
     }
   }
@@ -112,23 +102,16 @@ class _SplashScreenState extends State<SplashScreen>
             ],
           ),
         ),
-        child: GestureDetector(
-          onTap: () {
-            if (mounted) {
-              Navigator.of(context).pushReplacementNamed('/home');
-            }
-          },
-          child: Center(
-            child: AnimatedBuilder(
-              animation: _fadeAnimation,
-              child: _buildStaticContent(primaryColor),
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _fadeAnimation.value,
-                  child: child,
-                );
-              },
-            ),
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _fadeAnimation,
+            child: _buildStaticContent(primaryColor),
+            builder: (context, child) {
+              return Opacity(
+                opacity: _fadeAnimation.value,
+                child: child,
+              );
+            },
           ),
         ),
       ),
@@ -180,7 +163,32 @@ class _SplashScreenState extends State<SplashScreen>
             letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 50),
+        const SizedBox(height: 20),
+        
+        // Tick mark that appears when initialized
+        if (_isInitialized)
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.check,
+              color: Theme.of(context).colorScheme.primary,
+              size: 24,
+            ),
+          ),
+        
+        const SizedBox(height: 30),
         
         if (!_isInitialized)
           const SizedBox(

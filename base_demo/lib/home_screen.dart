@@ -6,8 +6,9 @@ import 'features/sensors/presentation/pages/sensor_info_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialTabIndex;
+  final VoidCallback? onTabChangeRequest;
   
-  const HomeScreen({super.key, this.initialTabIndex = 0});
+  const HomeScreen({super.key, this.initialTabIndex = 0, this.onTabChangeRequest});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -33,6 +34,11 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  // Public method to switch to search tab
+  void switchToSearchTab() {
+    _onItemTapped(0);
   }
 
   @override

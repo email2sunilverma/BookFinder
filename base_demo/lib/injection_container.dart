@@ -27,6 +27,11 @@ import 'features/sensors/presentation/bloc/sensor_bloc.dart';
 
 final sl = GetIt.instance;
 
+Future<void> init() async {
+  await initCore();
+  await initFeaturesAsync();
+}
+
 Future<void> initCore() async {
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => NetworkService(client: sl()));
@@ -66,8 +71,9 @@ Future<void> _initBooks() async {
   sl.registerFactory(() => BookDetailsBloc(
         getBookDetailsUseCase: sl(),
         saveBookUseCase: sl(),
+        removeBookUseCase: sl(),
       ));
-  sl.registerFactory(() => SavedBooksBloc(
+  sl.registerLazySingleton(() => SavedBooksBloc(
         getSavedBooksUseCase: sl(),
         saveBookUseCase: sl(),
         removeBookUseCase: sl(),
@@ -82,10 +88,4 @@ Future<void> _initDeviceInfo() async {
 Future<void> _initSensors() async {
   sl.registerLazySingleton(() => SensorService());
   sl.registerFactory(() => SensorBloc(sensorService: sl()));
-}
-
-@Deprecated('Use initCore() and initFeaturesAsync() for better performance')
-Future<void> init() async {
-  await initCore();
-  await initFeaturesAsync();
 }

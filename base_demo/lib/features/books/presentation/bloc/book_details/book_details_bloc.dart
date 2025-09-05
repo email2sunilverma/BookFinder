@@ -1,16 +1,19 @@
 import 'package:bloc/bloc.dart';
 import '../../../domain/usecases/get_book_details_use_case.dart';
 import '../../../domain/usecases/save_book_use_case.dart';
+import '../../../domain/usecases/remove_book_use_case.dart';
 import 'book_details_event.dart';
 import 'book_details_state.dart';
 
 class BookDetailsBloc extends Bloc<BookDetailsEvent, BookDetailsState> {
   final GetBookDetailsUseCase getBookDetailsUseCase;
   final SaveBookUseCase saveBookUseCase;
+  final RemoveBookUseCase removeBookUseCase;
 
   BookDetailsBloc({
     required this.getBookDetailsUseCase,
     required this.saveBookUseCase,
+    required this.removeBookUseCase,
   }) : super(const BookDetailsInitial()) {
     on<LoadBookDetailsEvent>(_onLoadBookDetails);
     on<SetBookDetailsEvent>(_onSetBookDetails);
@@ -57,11 +60,12 @@ class BookDetailsBloc extends Bloc<BookDetailsEvent, BookDetailsState> {
       final currentBook = currentState.book;
       
       if (currentBook.isSaved) {
-        // Remove book logic would go here
-        // For now, we'll just update the local state
+        // Remove the book from saved books
+        await removeBookUseCase.call(currentBook.key);
         final updatedBook = currentBook.copyWith(isSaved: false);
         emit(BookDetailsLoaded(book: updatedBook, isSaving: false));
       } else {
+        // Save the book
         await saveBookUseCase.call(currentBook);
         final updatedBook = currentBook.copyWith(isSaved: true);
         emit(BookDetailsLoaded(book: updatedBook, isSaving: false));

@@ -11,9 +11,7 @@ import 'injection_container.dart' as di;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Future.microtask(() async {
-    await di.initCore();
-  });
+  await di.init(); // Initialize everything including features
   runApp(const MyApp());
 }
 
@@ -56,9 +54,8 @@ class MyApp extends StatelessWidget {
           lazy: true,
           create: (_) => di.sl<BookDetailsBloc>(),
         ),
-        BlocProvider<SavedBooksBloc>(
-          lazy: true,
-          create: (_) => di.sl<SavedBooksBloc>(),
+        BlocProvider.value(
+          value: di.sl<SavedBooksBloc>(),
         ),
         BlocProvider<DeviceInfoBloc>(
           lazy: true,

@@ -26,7 +26,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     super.initState();
     // Set the book data directly without API call
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BookDetailsBloc>().add(SetBookDetailsEvent(book: widget.book));
+      if (mounted) {
+        context.read<BookDetailsBloc>().add(SetBookDetailsEvent(book: widget.book));
+      }
     });
   }
 
@@ -65,7 +67,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           state.book.isSaved 
                               ? Icons.bookmark 
                               : Icons.bookmark_border,
+                          color: Colors.white,
+                          size: 24,
                         ),
+                  tooltip: state.book.isSaved 
+                      ? 'Remove from saved books' 
+                      : 'Save this book',
                 );
               }
               return const SizedBox.shrink();
@@ -109,9 +116,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => context
-                  .read<BookDetailsBloc>()
-                  .add(SetBookDetailsEvent(book: widget.book)),
+              onPressed: () {
+                if (!mounted) return;
+                context
+                    .read<BookDetailsBloc>()
+                    .add(SetBookDetailsEvent(book: widget.book));
+              },
               child: const Text('Retry'),
             ),
           ],
@@ -257,6 +267,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   }
 
   void _toggleBookSaved() {
+    if (!mounted) return;
     context.read<BookDetailsBloc>().add(const ToggleBookSavedEvent());
     // Also refresh saved books list
     context.read<SavedBooksBloc>().add(const LoadSavedBooksEvent());
