@@ -1,0 +1,136 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Web related
+/web/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# iOS related
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Generated.xcconfig
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/.generated/
+
+# macOS related
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/Flutter-Debug.xcconfig
+**/macos/Flutter/Flutter-Release.xcconfig
+**/macos/Runner/GeneratedPluginRegistrant.swift
+
+# Windows related
+**/windows/flutter/ephemeral/
+
+# Linux related
+**/linux/flutter/ephemeral/
+
+# Test related
+test/.test_coverage.dart
+/test/coverage_helper_test.dart
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Firebase
+/android/app/google-services.json
+/ios/Runner/GoogleService-Info.plist
+/ios/firebase_app_id_file.json
+/macos/Runner/GoogleService-Info.plist
+/web/firebase-config.js
+
+# FVM (Flutter Version Management)
+.fvm/
+.fvmrc
+
+# Generated files (but keep pubspec.lock and .metadata)
+*.g.dart
+*.freezed.dart
+*.gr.dart
+*.config.dart
+# Uncomment the next line if you want to ignore generated mock files
+# *.mocks.dart
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# IDE files
+.vscode/settings.json
+.vscode/launch.json
+*.code-workspace
+
+# Platform specific temporary files
+.tmp/
+tmp/
+
+# Code coverage
+lcov.info
+coverage/
+
+# Documentation
+doc/api/
+
+# Key files that should never be committed
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.cer
+*.keystore
+key.properties
