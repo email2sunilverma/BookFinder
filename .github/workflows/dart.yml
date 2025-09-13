@@ -1,5 +1,3 @@
-
-
 name: Flutter CI/CD
 
 on:
@@ -23,27 +21,31 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.3' # or 'stable'
+          flutter-version: '3.22.0' # or your version
 
       # Install dependencies
       - name: Install dependencies
         run: flutter pub get
+        working-directory: base_demo
 
       # Run Flutter Analyzer
       - name: Analyze project
         run: flutter analyze
+        working-directory: base_demo
 
       # Run tests
       - name: Run tests
         run: flutter test
+        working-directory: base_demo
 
       # Build Android APK
       - name: Build APK
         run: flutter build apk --release
+        working-directory: base_demo
 
-      # Upload build artifacts (fixed to v4)
+      # Upload build artifacts
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: base_demo/build/app/outputs/flutter-apk/app-release.apk
