@@ -56,7 +56,6 @@ class _SplashScreenState extends State<SplashScreen>
         await di.sl<DatabaseService>().preloadDatabase();
       } catch (dbError) {
         // Continue even if database preload fails
-        print('Database preload failed: $dbError');
       }
       
       // Mark as initialized
@@ -70,7 +69,6 @@ class _SplashScreenState extends State<SplashScreen>
       await Future.delayed(const Duration(milliseconds: 500));
       
     } catch (e) {
-      print('Initialization error: $e');
       // Mark as initialized even if there's an error
       if (mounted) {
         setState(() {
