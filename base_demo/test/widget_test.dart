@@ -18,6 +18,7 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
+    await tester.pumpAndSettle(const Duration(seconds: 4));
     // Verify that our app has the bottom navigation bar with 4 tabs
     expect(find.text('Search'), findsOneWidget);
     expect(find.text('Saved'), findsOneWidget);
