@@ -14,10 +14,8 @@ void main() async {
   await di.init(); // Initialize everything including features
   runApp(const MyApp());
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,7 +28,6 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-  
   ThemeData _buildTheme() {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
