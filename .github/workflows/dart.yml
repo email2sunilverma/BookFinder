@@ -21,7 +21,27 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.3' # or your version
+          flutter-version: '3.35.3'
+
+      # Cache Flutter pub dependencies
+      - name: Cache Flutter pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('base_demo/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      # Cache Gradle dependencies
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('base_demo/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       # Install dependencies
       - name: Install dependencies
@@ -40,12 +60,17 @@ jobs:
 
       # Build Android APK
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --build-name=1.0.${{ github.run_number }} --build-number=${{ github.run_number }}
+        working-directory: base_demo
+
+      # Rename APK with version + run number
+      - name: Rename APK
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ github.run_number }}.apk
         working-directory: base_demo
 
       # Upload build artifacts
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: base_demo/build/app/outputs/flutter-apk/app-release.apk
+          name: BookFinder-Release
+          path: base_demo/build/app/outputs/flutter-apk/app-release-${{ github.run_number }}.apk
